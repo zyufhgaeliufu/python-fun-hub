@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Python Fun Hub Ultimate</title>
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <style>
+        body { font-family: monospace; background-color: #1e1e1e; color: #f0f0f0; padding: 20px; }
+        #output { white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h2>Please don't type while it's typing</h2>
+    <p>Only use these symbols for math: + - * / ^ () numbers</p>
+
+    <div id="output"></div>
+
+    <py-script>
+# Paste your full Python Fun Hub code here
+# Make sure it uses smooth_print() for output
+# Example:
+import time
+output = Element("output")
+def smooth_print(text, delay=0.01):
+    for char in text:
+        output.write(char)
+        time.sleep(delay)
+    output.write("\n")
+smooth_print("Welcome to Python Fun Hub Ultimate!")
+    </py-script>
+</body>
+</html>

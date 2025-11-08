@@ -4,75 +4,180 @@
     <meta charset="UTF-8">
     <title>Python Fun Hub Ultimate</title>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.11.1/brython.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.11.1/brython_stdlib.js"></script>
+    <style>
+        body { font-family: monospace; background: #1e1e1e; color: #f0f0f0; padding: 20px; }
+        #output { white-space: pre-wrap; max-height: 70vh; overflow-y: auto; border: 1px solid #555; padding: 10px; margin-bottom: 10px; }
+        input { background: #2e2e2e; color: #f0f0f0; border: none; padding: 5px; width: 300px; }
+        button { margin-left: 5px; }
+    </style>
 </head>
 <body onload="brython()">
-    <h2>Please don't type while it's typing</h2>
+    <h2>Python Fun Hub Ultimate</h2>
+    <p>Please don't type while it's typing.</p>
     <p>Only use these symbols for math: + - * / ^ () numbers</p>
-
-    <pre id="output"></pre>
+    <div id="output"></div>
+    <input type="text" id="user_input" placeholder="Type here...">
+    <button onclick="submit_input()">Submit</button>
 
     <script type="text/python">
 import time
 import random
 from math import *
-from sympy import symbols, Eq, solve, sqrt
+from sympy import symbols, Eq, solve, diff, integrate, limit, sin, cos, tan, sqrt, sympify
+from browser import document, window
 
-# --- Smooth print function ---
-from browser import document as doc
-output = doc["output"]
+output = document["output"]
+user_input = document["user_input"]
+input_queue = []
+
 def smooth_print(text, delay=0.01):
     for char in str(text):
-        output.text += char
+        output <= char
         time.sleep(delay)
-    output.text += "\n"
+    output <= "\n"
 
-# --- Mini-games (examples) ---
+def get_input(prompt=""):
+    smooth_print(prompt, 0.01)
+    user_input.value = ""
+    while not input_queue:
+        time.sleep(0.05)
+    return input_queue.pop(0)
+
+def submit_input():
+    value = user_input.value
+    if value:
+        input_queue.append(value)
+        user_input.value = ""
+
+# --- Mini-games ---
+
 def guess_number():
     number = random.randint(1, 100)
     smooth_print("Guess the number between 1 and 100")
     while True:
-        guess = int(input("Your guess: "))
-        if guess < number:
-            smooth_print("Too low!")
-        elif guess > number:
-            smooth_print("Too high!")
+        guess = get_input("Your guess: ")
+        try:
+            guess = int(guess)
+            if guess < number:
+                smooth_print("Too low!")
+            elif guess > number:
+                smooth_print("Too high!")
+            else:
+                smooth_print("Correct!")
+                break
+        except:
+            smooth_print("Invalid input!")
+
+def rock_paper_scissors():
+    smooth_print("Rock, Paper, Scissors!")
+    choices = ["rock", "paper", "scissors"]
+    comp = random.choice(choices)
+    player = get_input("Enter rock, paper, or scissors: ").lower()
+    if player not in choices:
+        smooth_print("Invalid choice!")
+    else:
+        smooth_print(f"Computer chose {comp}")
+        if player == comp:
+            smooth_print("Tie!")
+        elif (player=="rock" and comp=="scissors") or \
+             (player=="paper" and comp=="rock") or \
+             (player=="scissors" and comp=="paper"):
+            smooth_print("You win!")
         else:
-            smooth_print("Correct!")
+            smooth_print("You lose!")
+
+def dice_roll():
+    smooth_print(f"You rolled a {random.randint(1,6)}")
+
+def coin_flip():
+    smooth_print(f"Coin flip: {random.choice(['Heads','Tails'])}")
+
+def trivia():
+    smooth_print("Trivia: What's the fastest land animal? Cheetah!")
+
+def hangman():
+    word = random.choice(["python","fun","hub","ultimate","game"])
+    guessed = []
+    tries = 6
+    while tries > 0:
+        display = ''.join([c if c in guessed else '_' for c in word])
+        smooth_print(display)
+        if '_' not in display:
+            smooth_print("You guessed it!")
             break
+        guess = get_input("Guess a letter: ").lower()
+        if guess in guessed:
+            smooth_print("Already guessed!")
+        elif guess in word:
+            smooth_print("Correct!")
+            guessed.append(guess)
+        else:
+            smooth_print("Wrong!")
+            guessed.append(guess)
+            tries -= 1
 
-# You can paste your full Python Fun Hub Ultimate code here,
-# including all mini-games, math solver, etc.
+def math_challenge():
+    problem = f"{random.randint(1,50)} + {random.randint(1,50)} * {random.randint(1,10)}"
+    smooth_print(f"Solve: {problem}")
+    answer = eval(problem)
+    guess = get_input("Answer: ")
+    if guess == str(answer):
+        smooth_print("Correct!")
+    else:
+        smooth_print(f"Wrong! Correct answer was {answer}")
 
-smooth_print("Welcome to Python Fun Hub Ultimate!")
-smooth_print("System initializing...")
-smooth_print("Ready for input.")
+# You can add all other mini-games from your FunHub Copy.py here
+# Make sure all input() -> get_input() and print() -> smooth_print()
 
-# Example universal math solver
+# --- Universal Math Solver ---
 def universal_math_solver():
     smooth_print("Universal Math Solver (type 'quit' to exit)")
-    x, y, a, b, c = symbols('x y a b c')
+    x, y, z, a, b, c = symbols('x y z a b c')
     while True:
-        problem = input("Enter problem: ")
+        problem = get_input("Enter problem: ")
         if problem.lower() == "quit":
             break
         try:
-            if any(char.isalpha() for char in problem):
-                if "=" in problem:
-                    left, right = problem.split("=")
-                    eq = Eq(eval(left), eval(right))
-                    result = solve(eq)
-                else:
-                    expr = eval(problem)
-                    result = solve(expr)
+            if '=' in problem:
+                left_str, right_str = problem.split('=')
+                left_expr = sympify(left_str)
+                right_expr = sympify(right_str)
+                eq = Eq(left_expr, right_expr)
+                result = solve(eq)
             else:
-                result = eval(problem)
+                expr = sympify(problem)
+                result = expr.evalf()
             smooth_print(f"Answer: {result}")
         except Exception as e:
-            smooth_print(f"Error: {e}")
+            smooth_print(f"Cannot solve this problem: {e}")
 
-# Start universal math solver automatically (optional)
-# universal_math_solver()
+# --- Main menu ---
+def main_menu():
+    while True:
+        smooth_print("\n--- Python Fun Hub Ultimate ---")
+        smooth_print("1. Pick a mini-game")
+        smooth_print("2. Random fact")
+        smooth_print("3. Universal Math Solver")
+        smooth_print("4. Random mini-game")
+        smooth_print("5. Quit")
+        choice = get_input("Choose: ")
+        if choice == "1":
+            smooth_print("Mini-games list placeholder (add games here)")
+        elif choice == "2":
+            smooth_print(random.choice(["Honey never spoils.", "Octopuses have three hearts.", "Bananas are berries.", "Sharks existed before trees.", "There are more stars than grains of sand on Earth."]))
+        elif choice == "3":
+            universal_math_solver()
+        elif choice == "4":
+            smooth_print("Random mini-game placeholder")
+        elif choice == "5":
+            smooth_print("Goodbye!")
+            break
+        else:
+            smooth_print("Invalid choice!")
 
+# --- Start ---
+main_menu()
     </script>
 </body>
 </html>

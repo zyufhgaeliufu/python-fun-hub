@@ -1,32 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Python Fun Hub Ultimate</title>
-    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
-    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
-    <style>
-        body { font-family: monospace; background-color: #1e1e1e; color: #f0f0f0; padding: 20px; }
-        #output { white-space: pre-wrap; }
-    </style>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.11.1/brython.min.js"></script>
 </head>
-<body>
+<body onload="brython()">
     <h2>Please don't type while it's typing</h2>
     <p>Only use these symbols for math: + - * / ^ () numbers</p>
 
-    <div id="output"></div>
+    <pre id="output"></pre>
 
-    <py-script>
-# Paste your full Python Fun Hub code here
-# Make sure it uses smooth_print() for output
-# Example:
+    <script type="text/python">
 import time
-output = Element("output")
+import random
+from math import *
+from sympy import symbols, Eq, solve, sqrt
+
+# --- Smooth print function ---
+from browser import document as doc
+output = doc["output"]
 def smooth_print(text, delay=0.01):
-    for char in text:
-        output.write(char)
+    for char in str(text):
+        output.text += char
         time.sleep(delay)
-    output.write("\n")
+    output.text += "\n"
+
+# --- Mini-games (examples) ---
+def guess_number():
+    number = random.randint(1, 100)
+    smooth_print("Guess the number between 1 and 100")
+    while True:
+        guess = int(input("Your guess: "))
+        if guess < number:
+            smooth_print("Too low!")
+        elif guess > number:
+            smooth_print("Too high!")
+        else:
+            smooth_print("Correct!")
+            break
+
+# You can paste your full Python Fun Hub Ultimate code here,
+# including all mini-games, math solver, etc.
+
 smooth_print("Welcome to Python Fun Hub Ultimate!")
-    </py-script>
+smooth_print("System initializing...")
+smooth_print("Ready for input.")
+
+# Example universal math solver
+def universal_math_solver():
+    smooth_print("Universal Math Solver (type 'quit' to exit)")
+    x, y, a, b, c = symbols('x y a b c')
+    while True:
+        problem = input("Enter problem: ")
+        if problem.lower() == "quit":
+            break
+        try:
+            if any(char.isalpha() for char in problem):
+                if "=" in problem:
+                    left, right = problem.split("=")
+                    eq = Eq(eval(left), eval(right))
+                    result = solve(eq)
+                else:
+                    expr = eval(problem)
+                    result = solve(expr)
+            else:
+                result = eval(problem)
+            smooth_print(f"Answer: {result}")
+        except Exception as e:
+            smooth_print(f"Error: {e}")
+
+# Start universal math solver automatically (optional)
+# universal_math_solver()
+
+    </script>
 </body>
 </html>
